@@ -722,6 +722,80 @@ h1, h2, h3, h4 {
   margin-top: var(--espacio-sm);
 }
 
+/* Corazón de favoritos sobre la imagen */
+.btn-favorito {
+  position: absolute;
+  bottom: var(--espacio-sm);
+  right: var(--espacio-sm);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.92);
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ccc;
+  transition: color var(--transicion), transform var(--transicion), background var(--transicion);
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+.btn-favorito:hover  { transform: scale(1.15); color: var(--color-instagram); background: #fff; }
+.btn-favorito.activo { color: var(--color-instagram); }
+
+/* Botón favoritos en la navbar */
+.btn--favoritos-nav {
+  background: rgba(225,48,108,0.10);
+  color: var(--color-instagram);
+  border: 1.5px solid var(--color-instagram);
+  border-radius: var(--radio-full);
+  padding: 4px 12px;
+  font-weight: 700;
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  transition: background var(--transicion);
+}
+.btn--favoritos-nav:hover { background: rgba(225,48,108,0.20); }
+
+/* Sección favoritos */
+.favoritos-seccion {
+  margin-top: var(--espacio-2xl);
+  padding: var(--espacio-xl);
+  background: #fff5f7;
+  border-radius: var(--radio-lg);
+  border: 2px solid rgba(225,48,108,0.15);
+}
+.favoritos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--espacio-lg);
+}
+.favoritos-titulo {
+  font-family: var(--fuente-titulo);
+  font-size: var(--fs-xl);
+  color: var(--color-instagram);
+}
+.favoritos-cerrar {
+  background: none;
+  border: 1.5px solid var(--color-gris-texto);
+  border-radius: var(--radio-full);
+  padding: 4px 14px;
+  font-size: var(--fs-sm);
+  color: var(--color-gris-texto);
+  cursor: pointer;
+  transition: background var(--transicion);
+}
+.favoritos-cerrar:hover { background: var(--color-gris-claro); }
+.favoritos-vacio {
+  text-align: center;
+  color: var(--color-gris-texto);
+  padding: var(--espacio-2xl);
+  font-size: var(--fs-md);
+}
+
 
 /* =====================================================================
    9. SECCIÓN SOBRE NOSOTROS
