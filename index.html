@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<!--
+  ====================>=================================================
+  TEJIDOS A CROCHET COTE — index.html
+  =====================================================================
+  Este archivo es la estructura principal del sitio web.
+  Contiene todas las secciones visibles de la página:
+    - Navegación superior
+    - Hero (inicio)
+    - Productos con filtros por categoría
+    - Sobre nosotros
+    - Contacto / Instagram
+    - Registro e inicio de sesión
+    - Panel de administración (solo visible para el admin)
+    - Footer
+  =====================================================================
+-->
+
+<head>
+  <!-- ── META BÁSICO ─────────────────────────────────────── -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  <!-- ── SEO: TÍTULO Y DESCRIPCIÓN ──────────────────────── -->
+  <title>Tejidos a Crochet Cote | Tejidos hechos a mano · San Bernardo, Chile</title>
+  <meta name="description"
+    content="Tejidos artesanales hechos a mano con amor. Ropa tejida, amigurumis, accesorios y ropa de bebé. Pedidos personalizados por Instagram. San Bernardo, Chile." />
+  <meta name="keywords"
+    content="tejidos crochet, tejidos a mano, amigurumis, ropa bebé tejida, accesorios crochet, pedidos personalizados, San Bernardo Chile" />
+  <meta name="author" content="Tejidos a Crochet Cote" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- ── SEO: OPEN GRAPH (vista previa al compartir en redes) ── -->
+  <meta property="og:title" content="Tejidos a Crochet Cote | Hechos con amor" />
+  <meta property="og:description"
+    content="Tejidos artesanales únicos, hechos a mano con dedicación. Amigurumis, ropa, accesorios y pedidos personalizados." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://tejidoscrochetcote.netlify.app" />
+  <meta property="og:image" content="imagenes/cardigan-coral.jpg" />
+  <meta property="og:locale" content="es_CL" />
+
+  <!-- ── SEO: TWITTER CARD ──────────────────────────────── -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Tejidos a Crochet Cote" />
+  <meta name="twitter:description" content="Tejidos hechos a mano con amor y dedicación. 🧶" />
+  <meta name="twitter:image" content="imagenes/cardigan-coral.jpg" />
+
+  <!-- ── FAVICON (ícono de la pestaña del navegador) ────── -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧶</text></svg>" />
+
+  <!-- ── FUENTES DE GOOGLE FONTS ────────────────────────── -->
+  <!-- Playfair Display: título elegante  |  Lato: texto legible y limpio -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet" />
+
+  <!-- ── SUPABASE SDK (librería para conectar con la base de datos) ── -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- ── HOJA DE ESTILOS PRINCIPAL ──────────────────────── -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ============================================================
+       BARRA DE NAVEGACIÓN SUPERIOR
+       - Logo de la tienda
+       - Links a secciones (anclas)
+       - Botones de sesión (registro / login / logout)
+       - Menú hamburguesa para móvil
+  ============================================================ -->
+  <header class="navbar" id="navbar">
+    <div class="navbar__container">
+
+      <!-- Logo y nombre de la tienda -->
+      <a href="#inicio" class="navbar__logo">
+        <span class="navbar__logo-icon">🧶</span>
+        <span class="navbar__logo-text">Tejidos a Crochet <strong>Cote</strong></span>
+      </a>
+
+      <!-- Menú de navegación principal -->
+      <nav class="navbar__menu" id="navMenu" aria-label="Navegación principal">
+        <a href="#inicio"    class="navbar__link">Inicio</a>
+        <a href="#productos" class="navbar__link">Productos</a>
+        <a href="#nosotros"  class="navbar__link">Sobre mí</a>
+        <a href="#contacto"  class="navbar__link">Contacto</a>
+      </nav>
+
+      <!-- Botones de sesión (se muestran/ocultan según estado) -->
+      <div class="navbar__auth">
+        <!-- Visible cuando NO hay sesión iniciada -->
+        <button class="btn btn--outline btn--sm" id="btnAbrirLogin"  onclick="mostrarModal('modalLogin')">Iniciar sesión</button>
+        <button class="btn btn--primary btn--sm" id="btnAbrirRegistro" onclick="mostrarModal('modalRegistro')">Registrarse</button>
+
+        <!-- Visible cuando hay sesión iniciada -->
+        <div class="navbar__user hidden" id="areaUsuario">
+          <span class="navbar__user-email" id="usuarioEmail"></span>
+          <!-- Badge "Admin" solo visible para administrador -->
+          <span class="badge-admin hidden" id="badgeAdmin">Admin</span>
+          <button class="btn btn--outline btn--sm" onclick="cerrarSesion()">Salir</button>
+        </div>
+      </div>
+
+      <!-- Botón hamburguesa para pantallas pequeñas -->
+      <button class="navbar__hamburger" id="btnHamburguesa" aria-label="Abrir menú" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </button>
+
+    </div>
+  </header>
+
+
+  <!-- ============================================================
+       SECCIÓN HERO / INICIO
+       - Imagen de fondo con productos
+       - Texto principal del emprendimiento
+       - Botones CTA (llamado a la acción)
+  ============================================================ -->
+  <section class="hero" id="inicio">
+    <div class="hero__fondo" aria-hidden="true">
+      <div class="hero__overlay" aria-hidden="true"></div>
+    </div>
+
+    <div class="hero__contenido">
+      <p class="hero__subtitulo">Tejidos hechos a mano con amor 🧶</p>
+      <h1 class="hero__titulo">
+        Cada punto,<br />
+        <em>una historia</em>
+      </h1>
+      <p class="hero__descripcion">
+        Creaciones artesanales únicas tejidas a crochet con dedicación y cariño.
+        Ropa, accesorios, amigurumis y pedidos personalizados.
+        San Bernardo, Chile. 🇨🇱
+      </p>
+      <div class="hero__botones">
+        <a href="#productos" class="btn btn--primary btn--lg">Ver productos</a>
+        <a href="https://www.instagram.com/tejidoscrochet_cote/" target="_blank" rel="noopener noreferrer"
+           class="btn btn--instagram btn--lg">
+          <svg class="icon-ig" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+          </svg>
+          Ver Instagram
+        </a>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       SECCIÓN PRODUCTOS
+       - Filtros por categoría (botones)
+       - Grilla de tarjetas de productos
+       - Los productos se cargan desde Supabase via JavaScript
+  ============================================================ -->
+  <section class="productos" id="productos">
+    <div class="container">
+
+      <!-- Encabezado de sección -->
+      <div class="seccion-header">
+        <p class="seccion-etiqueta">Galería</p>
+        <h2 class="seccion-titulo">Nuestros Productos</h2>
+        <p class="seccion-descripcion">
+          Cada pieza es única, tejida a mano con hilos de calidad. Descubre nuestra colección
+          o escríbenos para hacer tu pedido personalizado.
+        </p>
+      </div>
+
+      <!-- Filtros de categorías -->
+      <div class="filtros" id="filtros" role="group" aria-label="Filtrar por categoría">
+        <button class="filtro-btn activo" data-categoria="todos" onclick="filtrarProductos('todos')">
+          Todos
+        </button>
+        <button class="filtro-btn" data-categoria="Ropa tejida" onclick="filtrarProductos('Ropa tejida')">
+          Ropa tejida
+        </button>
+        <button class="filtro-btn" data-categoria="Ropa de bebé" onclick="filtrarProductos('Ropa de bebé')">
+          Ropa de bebé
+        </button>
+        <button class="filtro-btn" data-categoria="Accesorios" onclick="filtrarProductos('Accesorios')">
+          Accesorios
+        </button>
+        <button class="filtro-btn" data-categoria="Amigurumis" onclick="filtrarProductos('Amigurumis')">
+          Amigurumis 🐾
+        </button>
+        <button class="filtro-btn" data-categoria="Pedidos personalizados" onclick="filtrarProductos('Pedidos personalizados')">
+          Personalizados
+        </button>
+      </div>
+
+      <!-- Mensaje de estado: cargando, vacío o error -->
+      <div class="mensaje-estado" id="mensajeEstado" aria-live="polite">
+        <div class="spinner" id="spinnerProductos" aria-label="Cargando productos..."></div>
+        <p id="textoEstado">Cargando productos...</p>
+      </div>
+
+      <!-- Grilla donde se insertan las tarjetas de productos dinámicamente -->
+      <div class="productos-grid" id="productosGrid" role="list">
+        <!-- Las tarjetas se generan desde script.js -->
+      </div>
+
+      <!-- Llamado a la acción al final de los productos -->
+      <div class="productos-cta">
+        <p>¿No encontraste lo que buscas?</p>
+        <a href="https://www.instagram.com/tejidoscrochet_cote/" target="_blank" rel="noopener noreferrer"
+           class="btn btn--instagram">
+          Consulta por pedido personalizado
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       SECCIÓN SOBRE NOSOTROS
+       - Historia del emprendimiento
+       - Valores y forma de trabajo
+  ============================================================ -->
+  <section class="nosotros" id="nosotros">
+    <div class="container">
+      <div class="nosotros__grid">
+
+        <!-- Columna de texto -->
+        <div class="nosotros__texto">
+          <p class="seccion-etiqueta">Sobre mí</p>
+          <h2 class="seccion-titulo">Hecho con amor, punto a punto 🧶</h2>
+          <p>
+            Soy Cote, y me encanta tejer a crochet. Lo que empezó como una pasión se convirtió
+            en un emprendimiento lleno de cariño, donde cada pieza es creada con dedicación
+            y atención al detalle.
+          </p>
+          <p>
+            Cada tejido es <strong>único</strong> — no hay dos iguales. Trabajo con hilos de
+            calidad y técnicas que garantizan piezas duraderas, suaves y hermosas.
+            Desde ropa para adultos hasta pequeños amigurumis para regalar, todo sale
+            de mis manos con el mismo amor.
+          </p>
+          <p>
+            También acepto <strong>pedidos personalizados</strong>: colores, tallas, diseños
+            y detalles a tu gusto. Solo escríbeme por Instagram y conversamos. 💌
+          </p>
+
+          <!-- Íconos de valores -->
+          <div class="nosotros__valores">
+            <div class="valor">
+              <span class="valor__icono">🤍</span>
+              <span class="valor__texto">Hecho a mano</span>
+            </div>
+            <div class="valor">
+              <span class="valor__icono">🎨</span>
+              <span class="valor__texto">Personalizable</span>
+            </div>
+            <div class="valor">
+              <span class="valor__icono">📦</span>
+              <span class="valor__texto">San Bernardo, Chile</span>
+            </div>
+            <div class="valor">
+              <span class="valor__icono">💬</span>
+              <span class="valor__texto">Atención cercana</span>
+            </div>
+          </div>
+
+          <a href="https://www.instagram.com/tejidoscrochet_cote/" target="_blank" rel="noopener noreferrer"
+             class="btn btn--primary">Escríbeme por Instagram</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       SECCIÓN CONTACTO / INSTAGRAM
+       - Links de contacto
+       - Información de ubicación
+       - CTA de pedido por DM
+  ============================================================ -->
+  <section class="contacto" id="contacto">
+    <div class="container">
+
+      <div class="seccion-header seccion-header--claro">
+        <p class="seccion-etiqueta">Contacto</p>
+        <h2 class="seccion-titulo">¿Cómo hacer un pedido?</h2>
+        <p class="seccion-descripcion">
+          Todos los pedidos se realizan directamente por Instagram.
+          Es rápido, fácil y puedo responder todas tus dudas al momento. 💬
+        </p>
+      </div>
+
+      <!-- Tarjetas de contacto -->
+      <div class="contacto-grid">
+
+        <div class="contacto-card">
+          <div class="contacto-card__icono">📱</div>
+          <h3>Instagram</h3>
+          <p>Escríbeme un mensaje directo para consultar disponibilidad, precios o hacer tu pedido.</p>
+          <a href="https://www.instagram.com/tejidoscrochet_cote/" target="_blank" rel="noopener noreferrer"
+             class="btn btn--instagram">
+            @tejidoscrochet_cote
+          </a>
+        </div>
+
+        <div class="contacto-card">
+          <div class="contacto-card__icono">✨</div>
+          <h3>Pedidos personalizados</h3>
+          <p>¿Quieres algo especial? Cuéntame colores, tallas y diseño. Lo hago a tu medida.</p>
+          <a href="https://www.instagram.com/direct/new/" target="_blank" rel="noopener noreferrer"
+             class="btn btn--primary">Hacer pedido personalizado</a>
+        </div>
+
+        <div class="contacto-card">
+          <div class="contacto-card__icono">📍</div>
+          <h3>Ubicación</h3>
+          <p>San Bernardo, Región Metropolitana, Chile.</p>
+        </div>
+
+      </div>
+
+      <!-- Banner Instagram grande -->
+      <div class="instagram-banner">
+        <p class="instagram-banner__texto">¡Síguenos en Instagram para ver nuestras creaciones!</p>
+        <a href="https://www.instagram.com/tejidoscrochet_cote/" target="_blank" rel="noopener noreferrer"
+           class="btn btn--instagram btn--lg">
+          <svg class="icon-ig" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+          </svg>
+          Seguir en Instagram
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       FOOTER
+       - Links rápidos
+       - Instagram
+       - Información de contacto
+       - Derechos reservados
+  ============================================================ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+
+        <!-- Columna 1: Logo y frase -->
+        <div class="footer__columna footer__columna--brand">
+          <div class="footer__logo">🧶 Tejidos a Crochet <strong>Cote</strong></div>
+          <p class="footer__frase">
+            "Cada punto tiene una historia,<br />
+            cada tejido tiene un alma."
+          </p>
+          <a href="https://www.instagram.com/tejidoscrochet_cote/" target="_blank" rel="noopener noreferrer"
+             class="footer__ig-link" aria-label="Instagram de Tejidos a Crochet Cote">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+            </svg>
+            @tejidoscrochet_cote
+          </a>
+        </div>
+
+        <!-- Columna 2: Links rápidos -->
+        <div class="footer__columna">
+          <h4 class="footer__titulo-col">Navegación</h4>
+          <ul class="footer__links">
+            <li><a href="#inicio">Inicio</a></li>
+            <li><a href="#productos">Productos</a></li>
+            <li><a href="#nosotros">Sobre mí</a></li>
+            <li><a href="#contacto">Contacto</a></li>
+          </ul>
+        </div>
+
+        <!-- Columna 3: Categorías -->
+        <div class="footer__columna">
+          <h4 class="footer__titulo-col">Categorías</h4>
+          <ul class="footer__links">
+            <li><a href="#productos" onclick="filtrarProductos('Ropa tejida')">Ropa tejida</a></li>
+            
+            <li><a href="#productos" onclick="filtrarProductos('Accesorios')">Accesorios</a></li>
+            <li><a href="#productos" onclick="filtrarProductos('Amigurumis')">Amigurumis</a></li>
+            <li><a href="#productos" onclick="filtrarProductos('Pedidos personalizados')">Personalizados</a></li>
+          </ul>
+        </div>
+
+        <!-- Columna 4: Contacto -->
+        <div class="footer__columna">
+          <h4 class="footer__titulo-col">Contacto</h4>
+          <p>📍 San Bernardo, Chile</p>
+          <p>📱 Por Instagram DM</p>
+          
+          <a href="https://www.instagram.com/tejidoscrochet_cote/" target="_blank" rel="noopener noreferrer"
+             class="btn btn--instagram btn--sm footer__btn-ig">Ver Instagram</a>
+        </div>
+
+      </div>
+
+      <!-- Línea inferior del footer -->
+      <div class="footer__bottom">
+        <p>© 2025 Tejidos a Crochet Cote · San Bernardo, Chile · Todos los derechos reservados.</p>
+        <p>Hecho con 🧶 y mucho amor</p>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- ============================================================
+       MODALES DE AUTENTICACIÓN
+       Los modales aparecen flotando sobre la página.
+       Se muestran/ocultan con JavaScript.
+  ============================================================ -->
+
+  <!-- MODAL: INICIAR SESIÓN -->
+  <div class="modal-overlay hidden" id="modalLogin" role="dialog" aria-modal="true" aria-labelledby="tituloLogin">
+    <div class="modal">
+      <button class="modal__cerrar" onclick="cerrarModal('modalLogin')" aria-label="Cerrar">✕</button>
+      <h2 class="modal__titulo" id="tituloLogin">Iniciar sesión</h2>
+      <p class="modal__subtitulo">Accede a tu cuenta para guardar tus favoritos.</p>
+
+      <form class="modal__form" id="formLogin" onsubmit="iniciarSesion(event)" novalidate>
+        <div class="campo">
+          <label for="loginEmail" class="campo__label">Correo electrónico</label>
+          <input type="email" id="loginEmail" class="campo__input" placeholder="tuemail@correo.com"
+                 autocomplete="email" required />
+          <span class="campo__error" id="errorLoginEmail"></span>
+        </div>
+        <div class="campo">
+          <label for="loginPassword" class="campo__label">Contraseña</label>
+          <input type="password" id="loginPassword" class="campo__input" placeholder="Tu contraseña"
+                 autocomplete="current-password" required />
+          <span class="campo__error" id="errorLoginPassword"></span>
+        </div>
+
+        <!-- Mensaje de estado del formulario -->
+        <div class="form-mensaje hidden" id="mensajeLogin"></div>
+
+        <button type="submit" class="btn btn--primary btn--full" id="btnLogin">
+          Iniciar sesión
+        </button>
+      </form>
+
+      <p class="modal__pie">
+        ¿No tienes cuenta?
+        <button class="link-btn" onclick="cambiarModal('modalLogin','modalRegistro')">Registrarse</button>
+      </p>
+    </div>
+  </div>
+
+  <!-- MODAL: REGISTRO DE USUARIO -->
+  <div class="modal-overlay hidden" id="modalRegistro" role="dialog" aria-modal="true" aria-labelledby="tituloRegistro">
+    <div class="modal">
+      <button class="modal__cerrar" onclick="cerrarModal('modalRegistro')" aria-label="Cerrar">✕</button>
+      <h2 class="modal__titulo" id="tituloRegistro">Crear cuenta</h2>
+      <p class="modal__subtitulo">Únete para guardar tus productos favoritos.</p>
+
+      <form class="modal__form" id="formRegistro" onsubmit="registrarUsuario(event)" novalidate>
+        <div class="campo">
+          <label for="registroNombre" class="campo__label">Nombre</label>
+          <input type="text" id="registroNombre" class="campo__input" placeholder="Tu nombre"
+                 autocomplete="name" required />
+          <span class="campo__error" id="errorRegistroNombre"></span>
+        </div>
+        <div class="campo">
+          <label for="registroEmail" class="campo__label">Correo electrónico</label>
+          <input type="email" id="registroEmail" class="campo__input" placeholder="tuemail@correo.com"
+                 autocomplete="email" required />
+          <span class="campo__error" id="errorRegistroEmail"></span>
+        </div>
+        <div class="campo">
+          <label for="registroPassword" class="campo__label">Contraseña</label>
+          <input type="password" id="registroPassword" class="campo__input"
+                 placeholder="Mínimo 8 caracteres" autocomplete="new-password" required />
+          <span class="campo__error" id="errorRegistroPassword"></span>
+        </div>
+        <div class="campo">
+          <label for="registroPasswordConfirm" class="campo__label">Confirmar contraseña</label>
+          <input type="password" id="registroPasswordConfirm" class="campo__input"
+                 placeholder="Repite tu contraseña" autocomplete="new-password" required />
+          <span class="campo__error" id="errorRegistroConfirm"></span>
+        </div>
+
+        <div class="form-mensaje hidden" id="mensajeRegistro"></div>
+
+        <button type="submit" class="btn btn--primary btn--full" id="btnRegistro">
+          Crear cuenta
+        </button>
+      </form>
+
+      <p class="modal__pie">
+        ¿Ya tienes cuenta?
+        <button class="link-btn" onclick="cambiarModal('modalRegistro','modalLogin')">Iniciar sesión</button>
+      </p>
+    </div>
+  </div>
+
+
+  <!-- ============================================================
+       PANEL DE ADMINISTRACIÓN
+       IMPORTANTE: Esta sección está OCULTA por defecto.
+       Solo aparece cuando un usuario con rol "admin" inicia sesión.
+       El control de visibilidad se hace en script.js.
+  ============================================================ -->
+  <section class="panel-admin hidden" id="panelAdmin" aria-label="Panel de administración">
+    <div class="container">
+
+      <div class="admin-header">
+        <h2 class="admin-titulo">⚙️ Panel de Administración</h2>
+        <p class="admin-subtitulo">Solo visible para administradores. Aquí puedes gestionar todos los productos del sitio.</p>
+      </div>
+
+      <!-- PESTAÑAS del panel admin -->
+      <div class="admin-tabs">
+        <button class="admin-tab activo" onclick="cambiarTabAdmin('tabProductos')" id="btnTabProductos">
+          📦 Productos
+        </button>
+        <button class="admin-tab" onclick="cambiarTabAdmin('tabAgregar')" id="btnTabAgregar">
+          ➕ Agregar producto
+        </button>
+      </div>
+
+      <!-- PESTAÑA 1: Lista de productos para editar/eliminar -->
+      <div class="admin-contenido" id="tabProductos">
+        <div class="admin-buscar">
+          <input type="text" id="adminBuscar" class="campo__input" placeholder="Buscar producto..."
+                 oninput="filtrarAdminProductos()" />
+        </div>
+        <div class="admin-productos-lista" id="adminProductosLista">
+          <!-- Se llena dinámicamente desde script.js -->
+        </div>
+      </div>
+
+      <!-- PESTAÑA 2: Formulario para agregar producto nuevo -->
+      <div class="admin-contenido hidden" id="tabAgregar">
+        <form class="admin-form" id="formAgregarProducto" onsubmit="guardarProducto(event)" novalidate>
+
+          <div class="admin-form__grid">
+            <!-- Nombre del producto -->
+            <div class="campo">
+              <label for="adminNombre" class="campo__label">Nombre del producto *</label>
+              <input type="text" id="adminNombre" class="campo__input" placeholder="Ej: Cardigan coral adulto"
+                     required />
+              <span class="campo__error" id="errorAdminNombre"></span>
+            </div>
+
+            <!-- Categoría -->
+            <div class="campo">
+              <label for="adminCategoria" class="campo__label">Categoría *</label>
+              <select id="adminCategoria" class="campo__input campo__select" required>
+                <option value="">— Selecciona categoría —</option>
+                <option value="Ropa tejida">Ropa tejida</option>
+                <option value="Ropa de bebé">Ropa de bebé</option>
+                <option value="Accesorios">Accesorios</option>
+                <option value="Amigurumis">Amigurumis</option>
+                <option value="Pedidos personalizados">Pedidos personalizados</option>
+                <option value="Otros">Otros</option>
+              </select>
+              <span class="campo__error" id="errorAdminCategoria"></span>
+            </div>
+
+            <!-- Estado del producto -->
+            <div class="campo">
+              <label for="adminEstado" class="campo__label">Estado *</label>
+              <select id="adminEstado" class="campo__input campo__select" required>
+                <option value="">— Selecciona estado —</option>
+                <option value="disponible">Disponible</option>
+                <option value="vendido">Vendido</option>
+                <option value="a_pedido">A pedido</option>
+                <option value="personalizable">Personalizable</option>
+              </select>
+              <span class="campo__error" id="errorAdminEstado"></span>
+            </div>
+
+            <!-- Descripción -->
+            <div class="campo campo--full">
+              <label for="adminDescripcion" class="campo__label">Descripción</label>
+              <textarea id="adminDescripcion" class="campo__input campo__textarea"
+                        placeholder="Describe el producto: materiales, talla, colores disponibles..."
+                        rows="3"></textarea>
+            </div>
+
+            <!-- Imagen: subir archivo O pegar URL -->
+            <div class="campo campo--full">
+              <label class="campo__label">Imagen del producto</label>
+              <div class="imagen-upload">
+                <input type="file" id="adminImagenArchivo" class="imagen-upload__input"
+                       accept="image/jpeg,image/png,image/webp"
+                       onchange="previsualizarImagen(event)" />
+                <label for="adminImagenArchivo" class="imagen-upload__label">
+                  <span>📷 Haz clic para subir imagen</span>
+                  <small>JPG, PNG o WEBP — máx. 5 MB</small>
+                </label>
+                <img id="previewImagen" class="imagen-upload__preview hidden"
+                     alt="Vista previa del producto" />
+              </div>
+              <p class="campo__hint">— O pega una URL de imagen —</p>
+              <input type="url" id="adminImagenUrl" class="campo__input"
+                     placeholder="https://ejemplo.com/imagen.jpg" />
+            </div>
+
+            <!-- Producto activo o no -->
+            <div class="campo campo--checkbox">
+              <label class="campo__label campo__label--checkbox">
+                <input type="checkbox" id="adminActivo" checked />
+                Producto activo (visible en la tienda)
+              </label>
+            </div>
+          </div>
+
+          <!-- Campo oculto para saber si estamos editando un producto existente -->
+          <input type="hidden" id="adminProductoId" value="" />
+
+          <!-- Mensajes de estado del formulario admin -->
+          <div class="form-mensaje hidden" id="mensajeAdmin"></div>
+
+          <!-- Botones del formulario -->
+          <div class="admin-form__botones">
+            <button type="submit" class="btn btn--primary" id="btnGuardarProducto">
+              Guardar producto
+            </button>
+            <button type="button" class="btn btn--outline" onclick="limpiarFormAdmin()">
+              Limpiar formulario
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       TOAST / NOTIFICACIÓN FLOTANTE
+       Aparece brevemente en la esquina para mensajes de éxito/error.
+       Se controla desde script.js con la función mostrarToast()
+  ============================================================ -->
+  <div class="toast hidden" id="toast" role="alert" aria-live="assertive">
+    <span id="toastTexto"></span>
+  </div>
+
+
+  <!-- ============================================================
+       SCRIPT PRINCIPAL
+       Se carga al final del body para que el HTML ya esté listo.
+  ============================================================ -->
+  <script src="script.js"></script>
+
+</body>
+</html>
