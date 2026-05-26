@@ -99,8 +99,10 @@
         <!-- Visible cuando hay sesión iniciada -->
         <div class="navbar__user hidden" id="areaUsuario">
           <span class="navbar__user-email" id="usuarioEmail"></span>
-          <!-- Badge "Admin" solo visible para administrador -->
           <span class="badge-admin hidden" id="badgeAdmin">Admin</span>
+          <button class="btn btn--favoritos-nav btn--sm" id="btnNavFavoritos" onclick="mostrarFavoritos()">
+            ❤ <span id="contadorFavNav">0</span>
+          </button>
           <button class="btn btn--outline btn--sm" onclick="cerrarSesion()">Salir</button>
         </div>
       </div>
@@ -200,6 +202,15 @@
       <!-- Grilla donde se insertan las tarjetas de productos dinámicamente -->
       <div class="productos-grid" id="productosGrid" role="list">
         <!-- Las tarjetas se generan desde script.js -->
+      </div>
+
+      <!-- Sección favoritos (visible solo cuando el usuario la abre) -->
+      <div class="favoritos-seccion hidden" id="seccionFavoritos">
+        <div class="favoritos-header">
+          <h3 class="favoritos-titulo">❤ Mis Favoritos</h3>
+          <button class="favoritos-cerrar" onclick="cerrarFavoritos()">✕ Cerrar</button>
+        </div>
+        <div class="productos-grid" id="favoritosGrid" role="list"></div>
       </div>
 
       <!-- Llamado a la acción al final de los productos -->
