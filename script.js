@@ -51,6 +51,7 @@ let todosLosProductos = [];   // Todos los productos cargados
 let categoriaActiva   = 'todos'; // Filtro activo
 let usuarioActual     = null; // Usuario con sesión
 let esAdmin           = false; // Si es administrador
+let misFavoritos      = [];   // IDs de productos favoritos del usuario
 
 /* Productos estáticos con imágenes locales (se muestran si Supabase está vacío) */
 const PRODUCTOS_ESTATICOS = [
@@ -273,6 +274,7 @@ async function actualizarInterfazSesion(haySesion) {
     btnRegistro.classList.add('hidden');
     areaUsuario.classList.remove('hidden');
     document.getElementById('usuarioEmail').textContent = usuarioActual.email;
+    document.getElementById('btnNavFavoritos').classList.remove('hidden');
 
     if (esAdmin) {
       badgeAdmin.classList.remove('hidden');
@@ -282,13 +284,106 @@ async function actualizarInterfazSesion(haySesion) {
       badgeAdmin.classList.add('hidden');
       panelAdmin.classList.add('hidden');
     }
+
+    await cargarFavoritos();
   } else {
     btnLogin.classList.remove('hidden');
     btnRegistro.classList.remove('hidden');
     areaUsuario.classList.add('hidden');
     badgeAdmin.classList.add('hidden');
     panelAdmin.classList.add('hidden');
+    document.getElementById('btnNavFavoritos').classList.add('hidden');
+    misFavoritos = [];
+    actualizarCorazones();
+    actualizarContadorFav();
   }
+}
+
+
+/* =====================================================================
+   FAVORITOS
+   ===================================================================== */
+
+async function cargarFavoritos() {
+  if (!usuarioActual) { misFavoritos = []; return; }
+  try {
+    const { data, error } = await Promise.race([
+      sbClient.from('favoritos').select('producto_id').eq('user_id', usuarioActual.id),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+    ]);
+    if (error) throw error;
+    misFavoritos = (data || []).map(f => String(f.producto_id));
+  } catch {
+    misFavoritos = [];
+  }
+  actualizarCorazones();
+  actualizarContadorFav();
+}
+
+async function toggleFavorito(productoId) {
+  if (!usuarioActual) {
+    mostrarModal('modalLogin');
+    mostrarToast('Inicia sesión para guardar favoritos ❤', 'info');
+    return;
+  }
+
+  const id      = String(productoId);
+  const esFav   = misFavoritos.includes(id);
+
+  try {
+    if (esFav) {
+      await sbClient.from('favoritos').delete()
+        .eq('user_id', usuarioActual.id).eq('producto_id', id);
+      misFavoritos = misFavoritos.filter(f => f !== id);
+      mostrarToast('Eliminado de favoritos', 'info');
+    } else {
+      await sbClient.from('favoritos').insert({ user_id: usuarioActual.id, producto_id: id });
+      misFavoritos.push(id);
+      mostrarToast('Guardado en favoritos ❤', 'exito');
+    }
+  } catch {
+    mostrarToast('Error al actualizar favoritos', 'error');
+    return;
+  }
+
+  actualizarCorazones();
+  actualizarContadorFav();
+
+  const seccion = document.getElementById('seccionFavoritos');
+  if (seccion && !seccion.classList.contains('hidden')) mostrarFavoritos();
+}
+
+function actualizarCorazones() {
+  document.querySelectorAll('.btn-favorito').forEach(btn => {
+    const activo = misFavoritos.includes(String(btn.dataset.id));
+    btn.classList.toggle('activo', activo);
+    btn.title = activo ? 'Quitar de favoritos' : 'Agregar a favoritos';
+  });
+}
+
+function actualizarContadorFav() {
+  const el = document.getElementById('contadorFavNav');
+  if (el) el.textContent = misFavoritos.length;
+}
+
+function mostrarFavoritos() {
+  if (!usuarioActual) { mostrarModal('modalLogin'); return; }
+  const seccion = document.getElementById('seccionFavoritos');
+  const grid    = document.getElementById('favoritosGrid');
+  seccion.classList.remove('hidden');
+  seccion.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  const favs = todosLosProductos.filter(p => misFavoritos.includes(String(p.id)));
+  if (favs.length === 0) {
+    grid.innerHTML = '<p class="favoritos-vacio">No tienes favoritos aún. Toca el ❤ en cualquier producto para guardarlo aquí.</p>';
+    return;
+  }
+  grid.innerHTML = '';
+  favs.forEach((p, i) => grid.appendChild(crearTarjetaProducto(p, i)));
+}
+
+function cerrarFavoritos() {
+  document.getElementById('seccionFavoritos').classList.add('hidden');
 }
 
 
@@ -407,6 +502,8 @@ function crearTarjetaProducto(producto, indice) {
   const nombreSeguro      = escaparHTML(producto.nombre);
   const descripcionSegura = escaparHTML(producto.descripcion);
   const srcSeguro         = escaparHTML(producto.imagen_url);
+  const idSeguro          = escaparHTML(String(producto.id));
+  const esFav             = misFavoritos.includes(String(producto.id));
 
   const imagenHtml = producto.imagen_url
     ? `<img src="${srcSeguro}"
@@ -419,6 +516,10 @@ function crearTarjetaProducto(producto, indice) {
   card.innerHTML = `
     <div class="producto-card__imagen-wrap">
       ${imagenHtml}
+      <button class="btn-favorito${esFav ? ' activo' : ''}"
+              data-id="${idSeguro}"
+              onclick="toggleFavorito('${idSeguro}')"
+              title="${esFav ? 'Quitar de favoritos' : 'Agregar a favoritos'}">❤</button>
     </div>
     <div class="producto-card__cuerpo">
       <h3 class="producto-card__nombre">${nombreSeguro}</h3>
